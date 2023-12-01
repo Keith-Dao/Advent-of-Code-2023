@@ -2,6 +2,22 @@
 Day 1 solution.
 """
 import sys
+from collections import defaultdict
+from typing import Any
+
+
+class TrieNode:
+    """Trie node."""
+
+    def __init__(self) -> None:
+        self.children = defaultdict(TrieNode)
+        self.val = None
+
+    def __contains__(self, key: Any) -> bool:
+        return key in self.children
+
+    def __getitem__(self, key: Any):
+        return self.children[key]
 
 
 class Solver:
@@ -22,6 +38,14 @@ class Solver:
     def __init__(self, filepath: str = "input.txt"):
         self.filepath = filepath
 
+        # Build trie for word to num mapping
+        self.trie = TrieNode()
+        for word, num in self.mapping.items():
+            curr = self.trie
+            for c in reversed(word):
+                curr = curr[c]
+            curr.val = num
+
     def general_solve(self, include_word_numbers: bool = False) -> int:
         """Solving algorithm for part 1 and part 2."""
 
@@ -29,12 +53,15 @@ class Solver:
             """
             Converts the last substr to a number if valid, else returns -1.
             """
-            num = -1
-            for length in range(3, min(6, len(substr))):
-                if (word := "".join(substr[-length:])) not in self.mapping:
-                    continue
-                num = self.mapping[word]
-            return num
+            curr = self.trie
+            for c in reversed(substr):
+                if c not in curr:
+                    break
+                curr = curr[c]
+
+                if curr.val is not None:
+                    return curr.val
+            return -1
 
         def line_to_num(line: str) -> int:
             first = last = -1
