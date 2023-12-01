@@ -20,5 +20,5 @@
 
 ### Usage
 
-1. Run `make {Day number}`
+1. Run `make build/{Day number}`
 2. Run `build/{Day number} {Path to input}`
