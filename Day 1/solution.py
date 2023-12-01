@@ -1,6 +1,8 @@
 """
 Day 1 solution.
 """
+from __future__ import annotations
+
 import sys
 from collections import defaultdict
 from typing import Any
@@ -16,31 +18,31 @@ class TrieNode:
     def __contains__(self, key: Any) -> bool:
         return key in self.children
 
-    def __getitem__(self, key: Any):
+    def __getitem__(self, key: Any) -> TrieNode:
         return self.children[key]
 
 
 class Solver:
     """Day 1 solver."""
 
-    mapping = {
-        "one": 1,
-        "two": 2,
-        "three": 3,
-        "four": 4,
-        "five": 5,
-        "six": 6,
-        "seven": 7,
-        "eight": 8,
-        "nine": 9,
-    }
+    words = [
+        "one",
+        "two",
+        "three",
+        "four",
+        "five",
+        "six",
+        "seven",
+        "eight",
+        "nine",
+    ]
 
     def __init__(self, filepath: str = "input.txt"):
         self.filepath = filepath
 
         # Build trie for word to num mapping
         self.trie = TrieNode()
-        for word, num in self.mapping.items():
+        for num, word in enumerate(self.words, start=1):
             curr = self.trie
             for c in reversed(word):
                 curr = curr[c]
