@@ -45,7 +45,7 @@ struct FileParserIterator
 		std::vector<std::string> sets;
 
 		// Read a line
-		char c;
+		char c = 0;
 		while (!this->file->eof() && c != '\n')
 		{
 			while ((c = this->file->get()) != ':')
