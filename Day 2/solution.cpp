@@ -45,26 +45,26 @@ struct FileParserIterator
 		std::vector<std::string> sets;
 
 		// Read a line
-		char c = 0;
+		char c;
+
+		// Get game id
+		while ((c = this->file->get()) != ':')
+		{
+			if (!std::isdigit(c))
+				continue;
+			game_id = game_id * 10 + (c - '0');
+		}
+
+		// Get set details
 		while (!this->file->eof() && c != '\n')
 		{
-			while ((c = this->file->get()) != ':')
+			std::string current;
+			while ((c = this->file->get()) != ';' && c != '\n' && c != EOF)
 			{
-				if (!std::isdigit(c))
-					continue;
-				game_id = game_id * 10 + (c - '0');
+				current.push_back(c);
 			}
-
-			while (!this->file->eof() && c != '\n')
-			{
-				std::string current;
-				while ((c = this->file->get()) != ';' && c != '\n' && c != EOF)
-				{
-					current.push_back(c);
-				}
-				sets.push_back(current);
-				current.clear();
-			}
+			sets.push_back(current);
+			current.clear();
 		}
 
 		this->value = std::make_pair(game_id, sets);
