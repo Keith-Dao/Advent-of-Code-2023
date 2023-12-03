@@ -2,7 +2,7 @@
 .DEFAULT_GOAL := default
 
 CXX = g++
-CFLAGS = -g
+CFLAGS = -g -std=c++20
 
 default:
 	@echo "Please specify a day using the command \"make XX\"."
