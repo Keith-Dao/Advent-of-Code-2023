@@ -138,7 +138,7 @@ class Solver:
 
     def solve(self) -> None:
         """Runs part 1 and part 2."""
-        print("Day 1")
+        print("Day 3")
         print(f"Solving: {self.filepath}")
         print("Part 1:")
         print(self.part_1())

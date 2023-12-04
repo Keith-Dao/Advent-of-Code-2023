@@ -193,7 +193,7 @@ public:
 
 	void solve()
 	{
-		std::cout << "Day 1" << std::endl;
+		std::cout << "Day 2" << std::endl;
 		std::cout << "Solving: " << this->filepath << std::endl;
 		std::cout << "Part 1:" << std::endl;
 		std::cout << this->part_1() << std::endl;
