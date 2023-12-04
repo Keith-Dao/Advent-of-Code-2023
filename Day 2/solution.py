@@ -13,12 +13,12 @@ class Solver:
 
     def decode_line(self, line: str) -> tuple[int, list[str]]:
         """
-        Decode line to get game id and set details for the game.
+        Decode line to get game id and draw details for the game.
         """
-        game_detail, set_details = line.split(":")
-        return (int(game_detail.split()[-1]), set_details.split(";"))
+        game_detail, draw_details = line.split(":")
+        return (int(game_detail.split()[-1]), draw_details.split(";"))
 
-    def decode_set(
+    def decode_draw(
         self, game_set: str
     ) -> Generator[tuple[int, int], None, None]:
         """
@@ -33,28 +33,32 @@ class Solver:
     def part_1(self):
         """Part 1 solver."""
         max_colours = [12, 13, 14]
+
+        def all_draws_less_than_max(draws: list[str]) -> bool:
+            def draw_less_than_max(draw: str) -> bool:
+                return all(
+                    num <= max_colours[colour]
+                    for num, colour in self.decode_draw(draw)
+                )
+
+            return all(draw_less_than_max(draw) for draw in draws)
+
         with open(
             self.filepath, "r", encoding=sys.getdefaultencoding()
         ) as file:
             return sum(
                 game_id
-                for game_id, sets in (self.decode_line(line) for line in file)
-                if all(
-                    all(
-                        num <= max_colours[colour]
-                        for num, colour in self.decode_set(set_)
-                    )
-                    for set_ in sets
-                )
+                for game_id, draws in (self.decode_line(line) for line in file)
+                if all_draws_less_than_max(draws)
             )
 
     def part_2(self):
         """Part 2 solver."""
 
-        def get_min_colours(sets: list[str]) -> list[int]:
+        def get_min_colours(draws: list[str]) -> list[int]:
             colours = [0, 0, 0]
-            for set_ in sets:
-                for num, colour in self.decode_set(set_):
+            for draw in draws:
+                for num, colour in self.decode_draw(draw):
                     colours[colour] = max(colours[colour], num)
             return colours
 
@@ -68,8 +72,8 @@ class Solver:
             self.filepath, "r", encoding=sys.getdefaultencoding()
         ) as file:
             return sum(
-                multiply(get_min_colours(sets))
-                for _, sets in (self.decode_line(line) for line in file)
+                multiply(get_min_colours(draws))
+                for _, draws in (self.decode_line(line) for line in file)
             )
 
     def solve(self) -> None:
