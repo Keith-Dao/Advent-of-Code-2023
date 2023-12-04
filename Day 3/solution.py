@@ -3,7 +3,6 @@ Day 3 solution.
 """
 import itertools
 import sys
-from io import TextIOWrapper
 from typing import Callable, Generator, Iterable
 
 
@@ -14,7 +13,7 @@ class Solver:
         self.filepath = filepath
 
     def get_nums_and_symbols(
-        self, file: TextIOWrapper, is_valid_symbol: Callable[[str], bool]
+        self, is_valid_symbol: Callable[[str], bool]
     ) -> tuple[
         list[tuple[int, int]],
         dict[tuple[int, int], int],
@@ -29,34 +28,37 @@ class Solver:
         id_to_positions = []
         id_to_num = []
 
-        for i, line in enumerate(file):
-            num = -1
-            num_positions = []
-            for j, c in enumerate(line.strip()):
-                if c.isdigit():
-                    if num == -1:
-                        num = 0
-                    num = num * 10 + int(c)
-                    num_positions.append((i, j))
-                    continue
-
-                if num != -1:
-                    for pos in num_positions:
-                        positions_to_id[pos] = len(id_to_num)
-                    id_to_positions.append(num_positions)
-                    id_to_num.append(num)
-
+        with open(
+            self.filepath, "r", encoding=sys.getdefaultencoding()
+        ) as file:
+            for i, line in enumerate(file):
                 num = -1
                 num_positions = []
+                for j, c in enumerate(line.strip()):
+                    if c.isdigit():
+                        if num == -1:
+                            num = 0
+                        num = num * 10 + int(c)
+                        num_positions.append((i, j))
+                        continue
 
-                if is_valid_symbol(c):
-                    symbols.append((i, j))
+                    if num != -1:
+                        for position in num_positions:
+                            positions_to_id[position] = len(id_to_num)
+                        id_to_positions.append(num_positions)
+                        id_to_num.append(num)
 
-            if num != -1:
-                for pos in num_positions:
-                    positions_to_id[pos] = len(id_to_num)
-                id_to_positions.append(num_positions)
-                id_to_num.append(num)
+                    num = -1
+                    num_positions = []
+
+                    if is_valid_symbol(c):
+                        symbols.append((i, j))
+
+                if num != -1:
+                    for position in num_positions:
+                        positions_to_id[position] = len(id_to_num)
+                    id_to_positions.append(num_positions)
+                    id_to_num.append(num)
 
         return symbols, positions_to_id, id_to_positions, id_to_num
 
@@ -71,26 +73,14 @@ class Solver:
                 continue
             yield i + d_i, j + d_j
 
-    def product(self, nums: Iterable[int]) -> int:
-        """
-        Returns the product of the all the numbers.
-        """
-        result = 1
-        for x in nums:
-            result *= x
-        return result
-
     def part_1(self):
         """Part 1 solver."""
-        with open(
-            self.filepath, "r", encoding=sys.getdefaultencoding()
-        ) as file:
-            (
-                symbols,
-                positions_to_id,
-                id_to_positions,
-                id_to_num,
-            ) = self.get_nums_and_symbols(file, lambda x: x not in [".", " "])
+        (
+            symbols,
+            positions_to_id,
+            id_to_positions,
+            id_to_num,
+        ) = self.get_nums_and_symbols(lambda x: x not in [".", " "])
 
         def sum_unique_adjacent_nums(i: int, j: int) -> int:
             result = 0
@@ -111,26 +101,39 @@ class Solver:
 
     def part_2(self):
         """Part 2 solver."""
-        with open(
-            self.filepath, "r", encoding=sys.getdefaultencoding()
-        ) as file:
-            stars, positions_to_id, _, id_to_num = self.get_nums_and_symbols(
-                file, lambda x: x == "*"
-            )
+        stars, positions_to_id, _, id_to_num = self.get_nums_and_symbols(
+            lambda x: x == "*"
+        )
+
+        def get_unique_part_numbers(position: tuple[int, int]) -> set[int]:
+            return {
+                positions_to_id[next_position]
+                for next_position in self.get_adjacent_points(*position)
+                if next_position in positions_to_id
+            }
+
+        def get_valid_part_numbers_generator() -> (
+            Generator[set[int], None, None]
+        ):
+            for position in stars:
+                part_numbers = get_unique_part_numbers(position)
+                if len(part_numbers) == 2:
+                    yield part_numbers
+
+        def convert_id_to_num(
+            ids: Iterable[int],
+        ) -> Generator[int, None, None]:
+            return (id_to_num[num_id] for num_id in ids)
+
+        def product(nums: Iterable[int]) -> int:
+            result = 1
+            for x in nums:
+                result *= x
+            return result
 
         return sum(
-            self.product((id_to_num[num_id] for num_id in adjacent_nums))
-            for i, j in stars
-            if (
-                len(
-                    adjacent_nums := {
-                        positions_to_id[n_i, n_j]
-                        for n_i, n_j in self.get_adjacent_points(i, j)
-                        if (n_i, n_j) in positions_to_id
-                    }
-                )
-                == 2
-            )
+            product(convert_id_to_num(adjacent_nums))
+            for adjacent_nums in get_valid_part_numbers_generator()
         )
 
     def solve(self) -> None:
