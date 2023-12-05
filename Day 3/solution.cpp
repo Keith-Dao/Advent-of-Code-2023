@@ -33,32 +33,33 @@ class Solver
 
 		for (int i = 0; !file.eof(); ++i) // Iterate over each line
 		{
-			int num = -1;
-			std::vector<Coordinate> num_positions;
+			int num = -1, num_digits = 0, n = 0;
 
-			for (int j = 0, c; (c = file.get()) != '\n' && c != EOF; ++j) // Iterate over each character
+			for (int j = 0, c; (c = file.get()) != '\n' && c != EOF; ++j, ++n) // Iterate over each character
 			{
 				if (std::isdigit(c))
 				{
 					if (num == -1)
 						num = 0;
 					num = num * 10 + c - '0';
-					num_positions.emplace_back(i, j);
+					++num_digits;
 					continue;
 				}
 
 				if (num != -1)
 				{
-					for (const Coordinate pos : num_positions)
+					id_to_positions.emplace_back();
+					for (int d_j = 1; d_j <= num_digits; ++d_j)
 					{
-						positions_to_id[pos] = id_to_num.size();
+						Coordinate positions{i, j - d_j};
+						positions_to_id[positions] = id_to_num.size();
+						id_to_positions.back().push_back(positions);
 					}
-					id_to_positions.push_back(num_positions);
 					id_to_num.push_back(num);
 				}
 
 				num = -1;
-				num_positions.clear();
+				num_digits = 0;
 
 				if (is_valid_symbol(c))
 					symbols.emplace_back(i, j);
@@ -66,11 +67,13 @@ class Solver
 
 			if (num != -1)
 			{
-				for (const Coordinate pos : num_positions)
+				id_to_positions.emplace_back();
+				for (int d_j = 1; d_j <= num_digits; ++d_j)
 				{
-					positions_to_id[pos] = id_to_num.size();
+					Coordinate positions{i, n - 1 - d_j};
+					positions_to_id[positions] = id_to_num.size();
+					id_to_positions.back().push_back(positions);
 				}
-				id_to_positions.push_back(num_positions);
 				id_to_num.push_back(num);
 			}
 		}

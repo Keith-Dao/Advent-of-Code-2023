@@ -33,31 +33,36 @@ class Solver:
         ) as file:
             for i, line in enumerate(file):
                 num = -1
-                num_positions = []
-                for j, c in enumerate(line.strip()):
+                num_digits = 0
+                line = line.strip()
+                for j, c in enumerate(line):
                     if c.isdigit():
                         if num == -1:
                             num = 0
                         num = num * 10 + int(c)
-                        num_positions.append((i, j))
+                        num_digits += 1
                         continue
 
                     if num != -1:
-                        for position in num_positions:
+                        id_to_positions.append([])
+                        for d_j in range(1, num_digits + 1):
+                            position = (i, j - d_j)
                             positions_to_id[position] = len(id_to_num)
-                        id_to_positions.append(num_positions)
+                            id_to_positions[-1].append(position)
                         id_to_num.append(num)
 
                     num = -1
-                    num_positions = []
+                    num_digits = 0
 
                     if is_valid_symbol(c):
                         symbols.append((i, j))
 
                 if num != -1:
-                    for position in num_positions:
+                    id_to_positions.append([])
+                    for d_j in range(1, num_digits + 1):
+                        position = (i, len(line) - 1 - d_j)
                         positions_to_id[position] = len(id_to_num)
-                    id_to_positions.append(num_positions)
+                        id_to_positions[-1].append(position)
                     id_to_num.append(num)
 
         return symbols, positions_to_id, id_to_positions, id_to_num
