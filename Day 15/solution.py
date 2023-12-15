@@ -1,7 +1,6 @@
 """
 Day 15 solution.
 """
-import collections
 import sys
 from typing import Generator, Iterable
 
@@ -55,7 +54,7 @@ class Solver:
         REMOVE = "-"
         REPLACE = "="
 
-        boxes = [collections.OrderedDict() for _ in range(256)]
+        boxes = [{} for _ in range(256)]
         for sequence in self.sequence_generator():
             focal_length = 0
             label = []
