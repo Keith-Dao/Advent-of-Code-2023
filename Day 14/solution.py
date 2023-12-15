@@ -55,7 +55,7 @@ class Solver:
     ) -> list[list[int]]:
         """Transpose the graph."""
         if not row_list:
-            raise ValueError("Cannot transpose empty graph.")
+            raise ValueError("Cannot transpose empty row list.")
 
         result = [[] for _ in range(new_length)]
         for i, row in enumerate(row_list):
@@ -64,44 +64,66 @@ class Solver:
         return result
 
     @staticmethod
+    def tilt(
+        round_rocks: list[list[int]],
+        cubed_rocks: list[list[int]],
+        num_cols: int,
+        transpose: bool,
+        in_reverse: bool,
+    ) -> list[list[int]]:
+        """Tilts the map."""
+        num_rows = len(round_rocks)
+        new_round_rocks = [[] for _ in range(num_rows)]
+
+        if transpose:
+            round_rocks = Solver.transpose_row_list(round_rocks, num_cols)
+            cubed_rocks = Solver.transpose_row_list(cubed_rocks, num_cols)
+
+        for axis_value, (rounds, cubes) in enumerate(
+            zip(round_rocks, cubed_rocks)
+        ):
+            i = 0
+            last = -1
+            if in_reverse:
+                i = len(cubes) - 1
+                last = num_rows if transpose else num_cols
+                rounds = reversed(rounds)
+
+            for round in rounds:
+                if in_reverse:
+                    while i >= 0 and cubes[i] > round:
+                        last = cubes[i]
+                        i -= 1
+                    last -= 1
+                else:
+                    while i < len(cubes) and cubes[i] < round:
+                        last = cubes[i]
+                        i += 1
+                    last += 1
+
+                new_round_rocks[last if transpose else axis_value].append(
+                    axis_value if transpose else last
+                )
+
+        return new_round_rocks
+
+    @staticmethod
     def tilt_north(
         round_rocks: list[list[int]],
         cubed_rocks: list[list[int]],
         num_cols: int,
     ) -> list[list[int]]:
         """Tilt the map north."""
-        new_round_rocks = [[] for _ in range(len(round_rocks))]
-        round_rocks = Solver.transpose_row_list(round_rocks, num_cols)
-        cubed_rocks = Solver.transpose_row_list(cubed_rocks, num_cols)
-
-        for col, (rounds, cubes) in enumerate(zip(round_rocks, cubed_rocks)):
-            i = 0
-            last_row = -1
-            for round in rounds:
-                while i < len(cubes) and cubes[i] < round:
-                    last_row = cubes[i]
-                    i += 1
-                last_row += 1
-                new_round_rocks[last_row].append(col)
-        return new_round_rocks
+        return Solver.tilt(round_rocks, cubed_rocks, num_cols, True, False)
 
     @staticmethod
     def tilt_west(
-        round_rocks: list[list[int]], cubed_rocks: list[list[int]], _: int
+        round_rocks: list[list[int]],
+        cubed_rocks: list[list[int]],
+        num_cols: int,
     ) -> list[list[int]]:
         """Tilt the map west."""
-        new_round_rocks = [[] for _ in range(len(round_rocks))]
-
-        for row, (rounds, cubes) in enumerate(zip(round_rocks, cubed_rocks)):
-            i = 0
-            last_col = -1
-            for round in rounds:
-                while i < len(cubes) and cubes[i] < round:
-                    last_col = cubes[i]
-                    i += 1
-                last_col += 1
-                new_round_rocks[row].append(last_col)
-        return new_round_rocks
+        return Solver.tilt(round_rocks, cubed_rocks, num_cols, False, False)
 
     @staticmethod
     def tilt_south(
@@ -110,21 +132,7 @@ class Solver:
         num_cols: int,
     ) -> list[list[int]]:
         """Tilt the map south."""
-        num_rows = len(round_rocks)
-        new_round_rocks = [[] for _ in range(len(round_rocks))]
-        round_rocks = Solver.transpose_row_list(round_rocks, num_cols)
-        cubed_rocks = Solver.transpose_row_list(cubed_rocks, num_cols)
-
-        for col, (rounds, cubes) in enumerate(zip(round_rocks, cubed_rocks)):
-            i = len(cubes) - 1
-            last_row = num_rows
-            for round in reversed(rounds):
-                while i >= 0 and cubes[i] > round:
-                    last_row = cubes[i]
-                    i -= 1
-                last_row -= 1
-                new_round_rocks[last_row].append(col)
-        return new_round_rocks
+        return Solver.tilt(round_rocks, cubed_rocks, num_cols, True, True)
 
     @staticmethod
     def tilt_east(
@@ -133,18 +141,7 @@ class Solver:
         num_cols: int,
     ) -> list[list[int]]:
         """Tilt the map east."""
-        new_round_rocks = [[] for _ in range(len(round_rocks))]
-
-        for row, (rounds, cubes) in enumerate(zip(round_rocks, cubed_rocks)):
-            i = len(cubes) - 1
-            last_col = num_cols
-            for round in reversed(rounds):
-                while i >= 0 and cubes[i] > round:
-                    last_col = cubes[i]
-                    i -= 1
-                last_col -= 1
-                new_round_rocks[row].append(last_col)
-        return new_round_rocks
+        return Solver.tilt(round_rocks, cubed_rocks, num_cols, False, True)
 
     @staticmethod
     def row_list_to_key(graph: list[list[int]]) -> tuple[tuple[int, ...], ...]:
