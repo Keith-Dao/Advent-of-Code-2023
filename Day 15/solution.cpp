@@ -199,20 +199,15 @@ public:
 		delete node;
 	}
 
-	void add(const K &key, const V &value)
+	V &operator[](const K &key)
 	{
 		if (!this->contains(key))
 		{
-			DoublyLinkedList *node = new DoublyLinkedList(key, value, this->tail->prev, this->tail);
+			DoublyLinkedList *node = new DoublyLinkedList(key, {}, this->tail->prev, this->tail);
 			node->prev->next = this->tail->prev = node;
 			this->map[key] = node;
 		}
-		this->map[key]->value = value;
-	}
-
-	V operator[](const K &key) const
-	{
-		return this->map.at(key).value;
+		return this->map[key]->value;
 	}
 
 	Iterator begin()
@@ -291,7 +286,7 @@ class Solver
 			}
 			else if (op == REPLACE)
 			{
-				boxes[hash_code].add(label, focal_length);
+				boxes[hash_code][label] = focal_length;
 			}
 		}
 
