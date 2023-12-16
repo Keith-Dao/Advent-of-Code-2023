@@ -2,7 +2,7 @@
 .DEFAULT_GOAL := default
 
 CXX = g++
-CFLAGS = -g -std=c++20
+CFLAGS = -g -std=c++20 -pthread -ltbb
 
 default:
 	@echo "Please specify a day using the command \"make XX\"."
