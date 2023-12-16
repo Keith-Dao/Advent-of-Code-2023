@@ -23,7 +23,7 @@ class Solver:
     def generate_graph(
         self,
     ) -> tuple[
-        dict[str, list[tuple[int, int]]],
+        dict[tuple[int, int], list[tuple[int, int]]],
         tuple[int, int],
         set[tuple[int, int]],
         int,
@@ -42,7 +42,8 @@ class Solver:
             "F": [self.Directions.SOUTH.value, self.Directions.EAST.value],
         }
         spaces = set()
-        m = 0
+        m = n = 0
+        start = -1, -1
         with open(
             self.filepath, "r", encoding=sys.getdefaultencoding()
         ) as file:
@@ -72,7 +73,8 @@ class Solver:
 
     @staticmethod
     def traverse_loop(
-        graph: dict[str, list[tuple[int, int]]], start: tuple[int, int]
+        graph: dict[tuple[int, int], list[tuple[int, int]]],
+        start: tuple[int, int],
     ) -> tuple[int, set[tuple[int, int]]]:
         """
         Traverse the loop returning the depth from the start node and all nodes in the loop.

@@ -12,7 +12,7 @@ class Solver:
     def __init__(self, filepath: str = "input.txt"):
         self.filepath = filepath
 
-    def parse_order_and_graph(self) -> tuple[str, dict[str, tuple[str, str]]]:
+    def parse_order_and_graph(self) -> tuple[str, dict[str, tuple[str, ...]]]:
         """
         Parse the file to get the order and build the graph.
         """
@@ -33,7 +33,7 @@ class Solver:
     def get_steps(
         order: str,
         node: str,
-        graph: dict[str, tuple[str, str]],
+        graph: dict[str, tuple[str, ...]],
         is_end_node: Callable[[str], bool],
     ) -> int:
         """Count the number of steps to reach the end node."""

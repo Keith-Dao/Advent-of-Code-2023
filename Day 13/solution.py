@@ -2,7 +2,7 @@
 Day 13 solution.
 """
 import sys
-from typing import Callable, Generator, Iterable
+from typing import Callable, Generator, Iterable, Sequence
 
 
 class Solver:
@@ -29,7 +29,8 @@ class Solver:
                 line = file.readline()
 
     def generic_solve(
-        self, is_valid_reflection: Callable[[list[Iterable[str]], int], bool]
+        self,
+        is_valid_reflection: Callable[[Iterable[Sequence[str]], int], bool],
     ) -> int:
         """Generic solve."""
         row_total = col_total = 0
@@ -57,7 +58,8 @@ class Solver:
         """Part 1 solver."""
 
         def is_valid_reflection(
-            reflection_sequences: list[Iterable[str]], reflection_point: int
+            reflection_sequences: Iterable[Sequence[str]],
+            reflection_point: int,
         ) -> bool:
             return all(
                 all(
@@ -79,7 +81,7 @@ class Solver:
         """Part 2 solver."""
 
         def is_valid_reflection(
-            sequences: list[Iterable[str]], reflection_point: int
+            sequences: Iterable[Sequence[str]], reflection_point: int
         ) -> bool:
             return (
                 sum(

@@ -3,7 +3,7 @@ Day 14 solution.
 """
 import enum
 import sys
-from typing import Iterable
+from typing import Sequence
 
 
 class Solver:
@@ -27,6 +27,7 @@ class Solver:
         """
         round_rocks = []
         cubed_rocks = []
+        n = 0
         with open(
             self.filepath, "r", encoding=sys.getdefaultencoding()
         ) as file:
@@ -149,7 +150,7 @@ class Solver:
         return tuple(tuple(row) for row in graph)
 
     @staticmethod
-    def calculate_north_load(round_rocks: Iterable[Iterable[int]]) -> int:
+    def calculate_north_load(round_rocks: Sequence[Sequence[int]]) -> int:
         """Calculate the total north load of the current round rock configuration."""
         return sum(
             len(row) * (len(round_rocks) - i)

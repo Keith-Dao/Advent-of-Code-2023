@@ -13,7 +13,7 @@ class TrieNode:
 
     def __init__(self) -> None:
         self.children = defaultdict(TrieNode)
-        self.val = None
+        self.val: int | None = None
 
     def __contains__(self, key: Any) -> bool:
         return key in self.children

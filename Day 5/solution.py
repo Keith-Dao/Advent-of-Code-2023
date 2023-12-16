@@ -3,7 +3,7 @@ Day 5 solution.
 """
 import sys
 from io import TextIOWrapper
-from typing import Callable, Generator, Generic, Iterable, TypeVar
+from typing import Callable, Generator, Iterable, TypeVar
 
 T = TypeVar("T")
 
@@ -17,10 +17,8 @@ class Solver:
     def template_solve(
         self,
         file: TextIOWrapper,
-        prev_nums: set[Generic[T]],
-        solve: Callable[
-            [set[Generic[T]], set[Generic[T]], int, int, int], None
-        ],
+        prev_nums: set[T],
+        solve: Callable[[set[T], set[T], int, int, int], None],
     ) -> None:
         """
         Generic template solver to map from seed values to location values.
@@ -74,7 +72,7 @@ class Solver:
 
         def batch(
             sequence: Iterable[int], batch_size: int = 1
-        ) -> Generator[tuple[int], None, None]:
+        ) -> Generator[tuple[int, ...], None, None]:
             batch_result = []
             for x in sequence:
                 batch_result.append(x)

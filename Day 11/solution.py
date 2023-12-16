@@ -38,7 +38,7 @@ class Solver:
     def generic_solve(self, expansion_factor: int) -> int:
         """Generic solver."""
         galaxies: list[tuple[int, int]] = []
-        m = 0
+        m = n = 0
         with open(
             self.filepath, "r", encoding=sys.getdefaultencoding()
         ) as file:
