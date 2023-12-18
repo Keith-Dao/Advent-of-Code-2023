@@ -11,8 +11,18 @@ class Solver:
     def __init__(self, filepath: str = "input.txt"):
         self.filepath = filepath
 
-    dir_map = {"L": (-1, 0), "R": (1, 0), "D": (0, -1), "U": (0, 1)}
-    num_to_dir = ["R", "D", "L", "U"]
+    LETTER_TO_DIRECTION: dict[str, tuple[int, int]] = {
+        "L": (-1, 0),
+        "R": (1, 0),
+        "D": (0, -1),
+        "U": (0, 1),
+    }
+    NUMBER_TO_DIRECTION: list[tuple[int, int]] = [
+        (1, 0),
+        (0, -1),
+        (-1, 0),
+        (0, 1),
+    ]
 
     @staticmethod
     def generic_solve(
@@ -44,7 +54,7 @@ class Solver:
             ) as file:
                 for line in file:
                     direction, length, _ = line.split()
-                    yield int(length), self.dir_map[direction]
+                    yield int(length), self.LETTER_TO_DIRECTION[direction]
 
         return self.generic_solve(instructions())
 
@@ -59,8 +69,8 @@ class Solver:
             ) as file:
                 for line in file:
                     instructions = line.split()[2][1:-1]
-                    yield int(instructions[1:6], 16), self.dir_map[
-                        self.num_to_dir[int(instructions[-1])]
+                    yield int(instructions[1:6], 16), self.NUMBER_TO_DIRECTION[
+                        int(instructions[-1])
                     ]
 
         return self.generic_solve(instructions())

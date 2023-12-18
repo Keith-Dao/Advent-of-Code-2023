@@ -80,8 +80,13 @@ private:
 
 	std::pair<int, int> num_to_dir(int i)
 	{
-		char dirs[4]{'R', 'D', 'L', 'U'};
-		return this->dir_map(dirs[i]);
+		std::pair<int, int> dirs[4]{
+				{1, 0},
+				{0, -1},
+				{-1, 0},
+				{0, 1},
+		};
+		return dirs[i];
 	}
 
 	int hex_digit_to_num(char c)
