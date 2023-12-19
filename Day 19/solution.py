@@ -111,7 +111,9 @@ class Solver:
 
                 original_ranges = dict(ranges)
                 result = 0
-                for var, operation, value, target in workflow[current]:
+                for variable_name, operation, value, target in workflow[
+                    current
+                ]:
                     if operation == "":
                         result += count_unique_arrangements(target, ranges)
                         continue
@@ -119,16 +121,18 @@ class Solver:
                     next_ranges = (
                         positive_range,
                         negative_range,
-                    ) = get_new_ranges(*ranges[var], value, operation)
+                    ) = get_new_ranges(
+                        *ranges[variable_name], value, operation
+                    )
                     if any(low > high for low, high in next_ranges):
                         break
 
-                    ranges[var] = positive_range
+                    ranges[variable_name] = positive_range
                     result += count_unique_arrangements(target, ranges)
-                    ranges[var] = negative_range
+                    ranges[variable_name] = negative_range
 
-                for var, range in original_ranges.items():
-                    ranges[var] = range
+                for variable_name, range in original_ranges.items():
+                    ranges[variable_name] = range
                 return result
 
             return count_unique_arrangements(
