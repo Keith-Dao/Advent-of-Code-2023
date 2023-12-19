@@ -99,7 +99,7 @@ class Solver:
                 raise ValueError("Invalid operation.")
 
             def count_unique_arrangements(
-                current, ranges: dict[str, tuple[int, int]]
+                current: str, ranges: dict[str, tuple[int, int]]
             ) -> int:
                 if current == "R":
                     return 0
