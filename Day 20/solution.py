@@ -172,7 +172,7 @@ class Solver:
             for prev in modules_inputs["rx"]
             for module in modules_inputs[prev]
         }
-        cycles = []
+        result = 1
         presses = 0
         while contingent_modules:
             presses += 1
@@ -192,7 +192,7 @@ class Solver:
 
                 if module in contingent_modules and modules_state[module]:
                     contingent_modules.remove(module)
-                    cycles.append(presses)
+                    result = math.lcm(result, presses)
 
                 if not self.send_pulse(
                     modules_type,
@@ -210,7 +210,7 @@ class Solver:
                         continue
                     queue.append((next_module, module_state, module))
 
-        return math.lcm(*cycles)
+        return result
 
     def solve(self) -> None:
         """Runs part 1 and part 2."""
