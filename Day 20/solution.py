@@ -22,6 +22,9 @@ class Solver:
         FLIP_FLOP = "%"
         CONJUNCTION = "&"
 
+    LOW_PULSE = False
+    HIGH_PULSE = True
+
     def parse_file(
         self,
     ) -> tuple[
@@ -53,8 +56,8 @@ class Solver:
                     modules_type[module] = module_type
 
                 for output in outputs:
-                    modules_inputs[output][module] = False
-                modules_state[module] = False
+                    modules_inputs[output][module] = self.LOW_PULSE
+                modules_state[module] = self.LOW_PULSE
                 modules_outputs[module] = outputs
 
         return modules_outputs, modules_type, modules_state, modules_inputs
@@ -64,7 +67,7 @@ class Solver:
         modules_type: dict[str, str],
         modules_state: dict[str, bool],
         modules_inputs: dict[str, dict[str, bool]],
-        node: str,
+        module: str,
         pulse: bool,
         prev: str,
     ) -> bool:
@@ -72,25 +75,27 @@ class Solver:
         Compute the sent pulse and determine whether the module
         should send a pulse to all its output modules.
         """
-        module_type = modules_type[node]
+        module_type = modules_type[module]
         if module_type == Solver.module_types.BROADCASTER.value:
             return True
 
-        if module_type not in [
+        if module_type not in (
             Solver.module_types.FLIP_FLOP.value,
             Solver.module_types.CONJUNCTION.value,
-        ]:
+        ):
             return False
 
         if module_type == Solver.module_types.FLIP_FLOP.value:
             if pulse:
                 return False
 
-            modules_state[node] ^= True
+            modules_state[module] ^= True
             return True
 
-        modules_inputs[node][prev] = pulse
-        modules_state[node] = any(not x for x in modules_inputs[node].values())
+        modules_inputs[module][prev] = pulse
+        modules_state[module] = any(
+            not x for x in modules_inputs[module].values()
+        )
         return True
 
     def part_1(self) -> int:
@@ -107,31 +112,31 @@ class Solver:
             queue: collections.deque[
                 tuple[str, bool, str]
             ] = collections.deque(
-                [(self.module_types.BROADCASTER.value, False, "")]
+                [(self.module_types.BROADCASTER.value, self.LOW_PULSE, "")]
             )
-            pulses[False] += 1  # Initial button press
+            pulses[self.LOW_PULSE] += 1  # Initial button press
 
             while queue:
-                node, pulse, prev = queue.popleft()
+                module, pulse, prev = queue.popleft()
 
                 if not self.send_pulse(
                     modules_type,
                     modules_state,
                     modules_inputs,
-                    node,
+                    module,
                     pulse,
                     prev,
                 ):
                     continue
 
-                module_state = modules_state[node]
-                for next_ in modules_outputs[node]:
+                module_state = modules_state[module]
+                for next_module in modules_outputs[module]:
                     pulses[module_state] += 1
-                    if next_ not in modules_type:
+                    if next_module not in modules_type:
                         continue
-                    queue.append((next_, module_state, node))
+                    queue.append((next_module, module_state, module))
 
-        return pulses[0] * pulses[1]
+        return pulses[self.LOW_PULSE] * pulses[self.HIGH_PULSE]
 
     def part_2(self) -> int:
         """Part 2 solver."""
@@ -146,42 +151,42 @@ class Solver:
             print("rx module missing from input.")
             return -1
 
-        contingent_nodes = {
-            node
+        contingent_modules = {
+            module
             for prev in modules_inputs["rx"]
-            for node in modules_inputs[prev]
+            for module in modules_inputs[prev]
         }
         cycles = []
         presses = 0
-        while contingent_nodes:
+        while contingent_modules:
             presses += 1
             queue: collections.deque[
                 tuple[str, bool, str]
             ] = collections.deque(
-                [(self.module_types.BROADCASTER.value, False, "")]
+                [(self.module_types.BROADCASTER.value, self.LOW_PULSE, "")]
             )
             while queue:
-                node, pulse, prev = queue.popleft()
+                module, pulse, prev = queue.popleft()
 
-                if node in contingent_nodes and modules_state[node]:
-                    contingent_nodes.remove(node)
+                if module in contingent_modules and modules_state[module]:
+                    contingent_modules.remove(module)
                     cycles.append(presses)
 
                 if not self.send_pulse(
                     modules_type,
                     modules_state,
                     modules_inputs,
-                    node,
+                    module,
                     pulse,
                     prev,
                 ):
                     continue
 
-                module_state = modules_state[node]
-                for next_ in modules_outputs[node]:
-                    if next_ not in modules_type:
+                module_state = modules_state[module]
+                for next_module in modules_outputs[module]:
+                    if next_module not in modules_type:
                         continue
-                    queue.append((next_, module_state, node))
+                    queue.append((next_module, module_state, module))
 
         return math.lcm(*cycles)
 
