@@ -16,14 +16,17 @@ class Solver:
         self.filepath = filepath
 
     class module_types(enum.Enum):
-        """Value module types."""
+        """Valid module types."""
 
         BROADCASTER = "broadcaster"
         FLIP_FLOP = "%"
         CONJUNCTION = "&"
 
-    LOW_PULSE = False
-    HIGH_PULSE = True
+    class pulse_types(enum.Enum):
+        """Valid pulse types."""
+
+        LOW_PULSE = False
+        HIGH_PULSE = True
 
     def parse_file(
         self,
@@ -56,8 +59,10 @@ class Solver:
                     modules_type[module] = module_type
 
                 for output in outputs:
-                    modules_inputs[output][module] = self.LOW_PULSE
-                modules_state[module] = self.LOW_PULSE
+                    modules_inputs[output][
+                        module
+                    ] = self.pulse_types.LOW_PULSE.value
+                modules_state[module] = self.pulse_types.LOW_PULSE.value
                 modules_outputs[module] = outputs
 
         return modules_outputs, modules_type, modules_state, modules_inputs
@@ -112,9 +117,17 @@ class Solver:
             queue: collections.deque[
                 tuple[str, bool, str]
             ] = collections.deque(
-                [(self.module_types.BROADCASTER.value, self.LOW_PULSE, "")]
+                [
+                    (
+                        self.module_types.BROADCASTER.value,
+                        self.pulse_types.LOW_PULSE.value,
+                        "",
+                    )
+                ]
             )
-            pulses[self.LOW_PULSE] += 1  # Initial button press
+            pulses[
+                self.pulse_types.LOW_PULSE.value
+            ] += 1  # Initial button press
 
             while queue:
                 module, pulse, prev = queue.popleft()
@@ -136,7 +149,10 @@ class Solver:
                         continue
                     queue.append((next_module, module_state, module))
 
-        return pulses[self.LOW_PULSE] * pulses[self.HIGH_PULSE]
+        return (
+            pulses[self.pulse_types.LOW_PULSE.value]
+            * pulses[self.pulse_types.HIGH_PULSE.value]
+        )
 
     def part_2(self) -> int:
         """Part 2 solver."""
@@ -163,7 +179,13 @@ class Solver:
             queue: collections.deque[
                 tuple[str, bool, str]
             ] = collections.deque(
-                [(self.module_types.BROADCASTER.value, self.LOW_PULSE, "")]
+                [
+                    (
+                        self.module_types.BROADCASTER.value,
+                        self.pulse_types.LOW_PULSE.value,
+                        "",
+                    )
+                ]
             )
             while queue:
                 module, pulse, prev = queue.popleft()
