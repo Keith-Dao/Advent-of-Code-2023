@@ -12,6 +12,21 @@ class Solver:
     def __init__(self, filepath: str = "input.txt"):
         self.filepath = filepath
 
+    def get_graph(self) -> tuple[list[str], tuple[int, int]]:
+        """Get the graph from the input file."""
+        graph = []
+        start = -1, -1
+        with open(
+            self.filepath, "r", encoding=sys.getdefaultencoding()
+        ) as file:
+            for i, line in enumerate(file):
+                graph.append(line.strip())
+                try:
+                    start = i, line.index("S")
+                except ValueError:
+                    pass
+        return graph, start
+
     @staticmethod
     def step(
         graph: list[str],
@@ -38,17 +53,7 @@ class Solver:
 
     def part_1(self) -> int:
         """Part 1 solver."""
-        graph = []
-        start = -1, -1
-        with open(
-            self.filepath, "r", encoding=sys.getdefaultencoding()
-        ) as file:
-            for i, line in enumerate(file):
-                graph.append(line.strip())
-                try:
-                    start = i, line.index("S")
-                except ValueError:
-                    pass
+        graph, start = self.get_graph()
 
         queue = collections.deque([start])
         visited = set()
@@ -59,17 +64,7 @@ class Solver:
 
     def part_2(self) -> int:
         """Part 2 solver."""
-        graph = []
-        start = -1, -1
-        with open(
-            self.filepath, "r", encoding=sys.getdefaultencoding()
-        ) as file:
-            for i, line in enumerate(file):
-                graph.append(line.strip())
-                try:
-                    start = i, line.index("S")
-                except ValueError:
-                    pass
+        graph, start = self.get_graph()
 
         m, n = len(graph), len(graph[0])
         target_step = 26501365
