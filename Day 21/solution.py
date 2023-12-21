@@ -43,8 +43,8 @@ class Solver:
                 if (
                     not 0 <= n_i < len(graph)
                     or not 0 <= n_j < len(graph[0])
-                    or (n_i, n_j) in visited
                     or graph[n_i][n_j] == "#"
+                    or (n_i, n_j) in visited
                 ):
                     continue
 
@@ -81,8 +81,8 @@ class Solver:
                 if (
                     not 0 <= n_i < m
                     or not 0 <= n_j < n
-                    or (n_i, n_j) in reachable
                     or graph[n_i][n_j] == "#"
+                    or (n_i, n_j) in reachable
                 ):
                     continue
                 reachable.add((n_i, n_j))
