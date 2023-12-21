@@ -2,8 +2,8 @@
 Day 21 solution.
 """
 import collections
+import itertools
 import sys
-from typing import Callable
 
 
 class Solver:
@@ -17,18 +17,20 @@ class Solver:
         graph: list[str],
         queue: collections.deque[tuple[int, int]],
         visited: set[tuple[int, int]],
-        should_skip_node: Callable[
-            [list[str], set[tuple[int, int]], int, int], bool
-        ],
     ) -> None:
         """Simulate one step."""
         visited.clear()
 
         for _ in range(len(queue)):
             i, j = queue.popleft()
-            for d_i, d_j in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+            for d_i, d_j in itertools.pairwise((0, -1, 0, 1, 0)):
                 n_i, n_j = i + d_i, j + d_j
-                if should_skip_node(graph, visited, n_i, n_j):
+                if (
+                    not 0 <= n_i < len(graph)
+                    or not 0 <= n_j < len(graph[0])
+                    or (n_i, n_j) in visited
+                    or graph[n_i][n_j] == "#"
+                ):
                     continue
 
                 visited.add((n_i, n_j))
@@ -51,18 +53,8 @@ class Solver:
         queue = collections.deque([start])
         visited = set()
 
-        def should_skip_node(
-            graph: list[str], visited: set[tuple[int, int]], i: int, j: int
-        ) -> bool:
-            return (
-                not 0 <= i < len(graph)
-                or not 0 <= j < len(graph[0])
-                or (i, j) in visited
-                or graph[i][j] == "#"
-            )
-
         for _ in range(64):
-            self.step(graph, queue, visited, should_skip_node)
+            self.step(graph, queue, visited)
         return len(visited)
 
     def part_2(self) -> int:
@@ -79,41 +71,52 @@ class Solver:
                 except ValueError:
                     pass
 
-        n = len(graph)
+        m, n = len(graph), len(graph[0])
         target_step = 26501365
+
+        # See https://www.reddit.com/r/adventofcode/comments/18nevo3/comment/keam21w
+        # for a better explanation
+        # Find all positions that can be reached
         queue = collections.deque([start])
-        visited_values: list[int] = []
+        reachable = {start}
+        while queue:
+            i, j = queue.popleft()
+            for d_i, d_j in itertools.pairwise((0, -1, 0, 1, 0)):
+                n_i, n_j = i + d_i, j + d_j
+                if (
+                    not 0 <= n_i < m
+                    or not 0 <= n_j < n
+                    or (n_i, n_j) in reachable
+                    or graph[n_i][n_j] == "#"
+                ):
+                    continue
+                reachable.add((n_i, n_j))
+                queue.append((n_i, n_j))
+
+        # Find the inner diamond positions
+        queue = collections.deque([start])
         visited = set()
+        for _ in range(target_step % m):
+            self.step(graph, queue, visited)
+        inner_odd_positions = set(visited)
+        self.step(graph, queue, visited)
+        inner_even_positions = set(visited)
+        num_repeats = (
+            2 * target_step
+        ) // m + 1  # Number of tiles along an axis
 
-        def should_skip_node(
-            graph: list[str], visited: set[tuple[int, int]], i: int, j: int
-        ) -> bool:
-            return (i, j) in visited or graph[i % len(graph)][
-                j % len(graph[0])
-            ] == "#"
+        outer_positions = (
+            reachable - inner_even_positions - inner_odd_positions
+        )
 
-        for k in range(3):
-            for _ in range((target_step % n) if k == 0 else n):
-                self.step(graph, queue, visited, should_skip_node)
-            visited_values.append(len(visited))
+        num_even_tiles, num_odd_tiles = sorted(
+            (num_repeats // 2, num_repeats - num_repeats // 2)
+        )
 
-        # See
-        # https://en.wikipedia.org/wiki/Newton_polynomial#Newton_forward_divided_difference_formula
-        # y = visited_values, s = num_cycles, h = 1
-        num_cycles = target_step // n
-        divided_difference = [
-            visited_values[0],
-            visited_values[1] - visited_values[0],
-            (
-                (visited_values[2] - visited_values[1])
-                - (visited_values[1] - visited_values[0])
-            )
-            // 2,
-        ]
         return (
-            divided_difference[0]
-            + divided_difference[1] * num_cycles
-            + num_cycles * (num_cycles - 1) * divided_difference[2]
+            num_odd_tiles * num_odd_tiles * len(inner_odd_positions)
+            + num_odd_tiles * num_even_tiles * len(outer_positions)
+            + num_even_tiles * num_even_tiles * len(inner_even_positions)
         )
 
     def solve(self) -> None:
