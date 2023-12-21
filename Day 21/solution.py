@@ -96,14 +96,14 @@ class Solver:
         inner_odd_positions = set(visited)
         self.step(graph, queue, visited)
         inner_even_positions = set(visited)
-        num_repeats = (
-            2 * target_step
-        ) // m + 1  # Number of tiles along an axis
 
         outer_positions = (
             reachable - inner_even_positions - inner_odd_positions
         )
 
+        num_repeats = (
+            2 * target_step
+        ) // m + 1  # Number of tiles along an axis
         num_even_tiles, num_odd_tiles = sorted(
             (num_repeats // 2, num_repeats - num_repeats // 2)
         )
