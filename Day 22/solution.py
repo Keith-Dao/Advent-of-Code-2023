@@ -85,7 +85,7 @@ class Solver:
         return resting_bricks, blocks_to_id
 
     @staticmethod
-    def create_directional_support_graph(
+    def create_directional_support_graphs(
         resting_bricks: list[tuple[XYZ, XYZ]], blocks_to_id: dict[XYZ, int]
     ) -> tuple[list[set[int]], list[set[int]]]:
         """
@@ -111,7 +111,7 @@ class Solver:
         """Part 1 solver."""
         resting_bricks, blocks_to_id = self.get_resting_bricks()
 
-        supports, supported_by = self.create_directional_support_graph(
+        supports, supported_by = self.create_directional_support_graphs(
             resting_bricks, blocks_to_id
         )
 
@@ -127,7 +127,7 @@ class Solver:
         """Part 2 solver."""
         resting_bricks, blocks_to_id = self.get_resting_bricks()
 
-        supports, supported_by = self.create_directional_support_graph(
+        supports, supported_by = self.create_directional_support_graphs(
             resting_bricks, blocks_to_id
         )
 
