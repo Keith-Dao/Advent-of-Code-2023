@@ -21,7 +21,7 @@ class Solver:
 
     def get_resting_bricks(
         self,
-    ) -> tuple[list[tuple[ZYX, ZYX]], dict[XYZ, int]]:
+    ) -> tuple[list[tuple[XYZ, XYZ]], dict[XYZ, int]]:
         """Get the bricks after they are at rest and the blocks that the occupied by a brick."""
 
         def parse_coordinate(coordinate: str) -> ZYX:
@@ -49,7 +49,7 @@ class Solver:
         lowest_non_blocking_z: collections.defaultdict[
             tuple[X, Y], Z
         ] = collections.defaultdict(int)
-        resting_bricks: list[tuple[ZYX, ZYX]] = []
+        resting_bricks: list[tuple[XYZ, XYZ]] = []
         blocks_to_id: dict[XYZ, int] = {}
         while bricks:
             (z, y, x), lengths = heapq.heappop(bricks)
@@ -80,13 +80,13 @@ class Solver:
                     resting_bricks
                 )
 
-            resting_bricks.append(((min_z, y, x), lengths))
+            resting_bricks.append(((x, y, min_z), (l_x, l_y, l_z)))
 
         return resting_bricks, blocks_to_id
 
     @staticmethod
     def create_directional_support_graph(
-        resting_bricks: list[tuple[ZYX, ZYX]], blocks_to_id: dict[XYZ, int]
+        resting_bricks: list[tuple[XYZ, XYZ]], blocks_to_id: dict[XYZ, int]
     ) -> tuple[list[set[int]], list[set[int]]]:
         """
         Creates directional graphs mapping:
@@ -95,7 +95,7 @@ class Solver:
         """
         supports = [set() for _ in range(len(resting_bricks))]
         supported_by = [set() for _ in range(len(resting_bricks))]
-        for brick, ((z, y, x), (_, l_y, l_x)) in enumerate(resting_bricks):
+        for brick, ((x, y, z), (l_x, l_y, _)) in enumerate(resting_bricks):
             for d_x, d_y in itertools.product(range(l_x), range(l_y)):
                 try:
                     brick_below = blocks_to_id[x + d_x, y + d_y, z - 1]
