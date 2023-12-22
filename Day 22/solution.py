@@ -6,7 +6,9 @@ import heapq
 import itertools
 import sys
 
-X = Y = Z = int
+X = int
+Y = int
+Z = int
 ZYX = tuple[Z, Y, X]
 """Coordinates for the z, y, z axes respectively."""
 XYZ = tuple[X, Y, Z]
