@@ -27,7 +27,6 @@ class Solver:
             grid = [line.strip() for line in file]
 
         slopes = "<^>v"
-        m, n = len(grid), len(grid[0])
         graph: dict[
             tuple[int, int], dict[tuple[int, int], int]
         ] = collections.defaultdict(dict)
@@ -47,11 +46,10 @@ class Solver:
                         continue
 
                     n_i, n_j = i + d_i, j + d_j
-                    if (
-                        not 0 <= n_i < m
-                        or not 0 <= n_j < n
-                        or grid[n_i][n_j] == "#"
-                    ):
+                    try:
+                        if grid[n_i][n_j] == "#":
+                            continue
+                    except IndexError:
                         continue
 
                     graph[i, j][n_i, n_j] = 1
@@ -82,7 +80,7 @@ class Solver:
                 done = False
                 break
 
-        return graph, (m, n)
+        return graph, (len(grid), len(grid[0]))
 
     def generic_solve(self, ignore_slopes: bool) -> int:
         """Generic solve."""
