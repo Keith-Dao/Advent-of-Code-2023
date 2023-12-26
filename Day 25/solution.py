@@ -18,46 +18,46 @@ class Solver:
             self.filepath, "r", encoding=sys.getdefaultencoding()
         ) as file:
             for line in file:
-                src, rest = line.split(": ")
+                source, rest = line.split(": ")
                 for next_ in rest.split():
-                    graph[src][next_] = 1
-                    graph[next_][src] = 1
+                    graph[source][next_] = 1
+                    graph[next_][source] = 1
 
         # See details at:
         # https://www.reddit.com/r/adventofcode/comments/18qbsxs/comment/keuadf5
 
-        def bfs(graph, parents, src, target) -> bool:
+        def bfs(graph, parents, source, target) -> bool:
             for node in graph:
                 parents[node] = None
-            parents[src] = src
-            queue = collections.deque([src])
+            parents[source] = source
+            queue = collections.deque([source])
             while queue:
                 node = queue.popleft()
-                for next_, capacity in graph[node].items():
-                    if capacity <= 0 or parents[next_] is not None:
+                for next_node, capacity in graph[node].items():
+                    if capacity <= 0 or parents[next_node] is not None:
                         continue
-                    parents[next_] = node
-                    queue.append(next_)
+                    parents[next_node] = node
+                    queue.append(next_node)
 
             return parents[target] is not None
 
-        def min_cuts(graph, parents, src, target) -> float:
+        def min_cuts(graph, parents, source, target) -> float:
             for neighbours in graph.values():
-                for u in neighbours:
-                    neighbours[u] = 1
+                for next_node in neighbours:
+                    neighbours[next_node] = 1
 
             max_flow: float = 0
-            while bfs(graph, parents, src, target):
+            while bfs(graph, parents, source, target):
                 flow = float("inf")
                 node = target
-                while node != src:
+                while node != source:
                     flow = min(flow, graph[parents[node]][node])
                     node = parents[node]
 
                 max_flow += flow
 
                 node = target
-                while node != src:
+                while node != source:
                     prev = parents[node]
                     graph[prev][node] -= flow
                     graph[node][prev] += flow
@@ -66,9 +66,9 @@ class Solver:
             return max_flow
 
         parents = {node: None for node in graph}
-        src, *other = graph
+        source, *other = graph
         for target in other:
-            if min_cuts(graph, parents, src, target) == 3:
+            if min_cuts(graph, parents, source, target) == 3:
                 break
 
         component_1_size = sum(p is not None for p in parents.values())
